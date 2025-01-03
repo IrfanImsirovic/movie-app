@@ -17,31 +17,34 @@ export default function Header() {
         <MenuItem title="About" address="/about" Icon={AiFillInfoCircle} />
       </div>
 
-      {/* Right section with dark mode switch, login/logout, brand */}
+      {/* Right section with dark mode switch, login, brand */}
       <div className="flex items-center space-x-5">
         <DarkModeSwitch />
 
-        {/* Conditionally show link to '/login' or to '/api/auth/logout' */}
+        {/* If user is not logged in, show 'Login' button */}
         {!user && (
           <Link
-            href="/login"
+            href="/api/auth/login"
             className="bg-blue-600 text-white px-3 py-1 rounded-md"
           >
             Login
           </Link>
         )}
+
+        {/* If user is logged in, show the user's name or email leading to /profile */}
         {user && (
           <Link
-            href="/api/auth/logout"
-            className="bg-red-600 text-white px-3 py-1 rounded-md"
+            href="/profile"
+            className="bg-blue-600 text-white px-3 py-1 rounded-md"
           >
-            Logout
+            {user.name || user.email}
           </Link>
         )}
 
+        {/* Branding */}
         <Link href="/">
           <h2 className="text-2xl">
-            <span className="font-bold bg-red-950 py-1 px-2 rounded-lg text-white ">
+            <span className="font-bold bg-red-950 py-1 px-2 rounded-lg text-white">
               Movies
             </span>
             <span className="font-bold hidden sm:inline">App</span>
