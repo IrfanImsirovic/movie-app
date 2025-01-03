@@ -1,8 +1,9 @@
+// app/layout.tsx
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "./components/Header";
-import Providers from "./Providers"; // Ensure the import is correct
+import Providers from "./Providers";
 import Navbar from "./components/Navbar";
 import SearchBox from "./components/SearchBox";
 
@@ -17,21 +18,22 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MovieApp", // Fixed typo in title (was "MoiveApp")
+  title: "MovieApp",
   description: "This is the best movie app",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <head>{/* Metadata, title, links, etc. */}</head>
+      <head>{/* Add your metadata, links, etc. if needed */}</head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {/* Wrap entire app inside Providers */}
         <Providers>
           <Header />
           <Navbar />
