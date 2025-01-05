@@ -1,15 +1,18 @@
 import Image from "next/image";
+import CommentsList from "../../components/CommentsList";
+import CommentForm from "../../components/CommentForm";
 
 async function getMovie(movieId) {
   const res = await fetch(
     `https://api.themoviedb.org/3/movie/${movieId}?api_key=${process.env.API_KEY}`
   );
-  return await res.json();
+  return res.json();
 }
 
 export default async function MoviePage({ params }) {
-  const movieId = params.id;
+  const { id: movieId } = params;
   const movie = await getMovie(movieId);
+
   return (
     <div className="w-full">
       <div className="p-4 md:pt-8 flex flex-col md:flex-row items-center content-center max-w-6xl mx-auto md:space-x-6">
@@ -27,24 +30,32 @@ export default async function MoviePage({ params }) {
           placeholder="blur"
           blurDataURL="/spinner.svg"
           alt="Movie poster"
-        ></Image>
+        />
         <div className="p-2">
           <h2 className="text-lg mb-3 font-bold">
             {movie.title || movie.name}
           </h2>
           <p className="text-lg mb-3">
             <span className="font-semibold mr-1">Overview:</span>
-            {movie.overview}
+            {movie.overview || "No overview available."}
           </p>
           <p className="mb-3">
             <span className="font-semibold mr-1">Date Released:</span>
-            {movie.release_date || movie.first_air_date}
+            {movie.release_date ||
+              movie.first_air_date ||
+              "Unknown release date"}
           </p>
           <p className="mb-3">
             <span className="font-semibold mr-1">Rating:</span>
-            {movie.vote_average.toFixed(1)}
+            {movie.vote_average ? movie.vote_average.toFixed(1) : "N/A"}
           </p>
         </div>
+      </div>
+
+      {/* Comments Section */}
+      <div className="max-w-6xl mx-auto p-4">
+        <CommentsList movieId={movieId} />
+        <CommentForm movieId={movieId} />
       </div>
     </div>
   );
