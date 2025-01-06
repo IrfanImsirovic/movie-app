@@ -1,28 +1,115 @@
-// app/login/page.tsx
 "use client";
 
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const router = useRouter();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleLogin = async () => {
-    // Redirect the user to Auth0's Universal Login
-    router.push("/api/auth/login");
+  const supabase = createClientComponentClient();
+
+  useEffect(() => {
+    async function getUser() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUser(user);
+      setLoading(false);
+    }
+
+    getUser();
+  }, []);
+
+  const handleSignUp = async () => {
+    const res = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${location.origin}/auth/callback`,
+      },
+    });
+    setUser(res.data.user);
+    router.refresh();
+    setEmail("");
+    setPassword("");
   };
 
+  const handleSignIn = async () => {
+    const res = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    setUser(res.data.user);
+    router.refresh();
+    setEmail("");
+    setPassword("");
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.refresh();
+    setUser(null);
+  };
+
+  console.log({ loading, user });
+
+  if (loading) {
+    return <h1>loading..</h1>;
+  }
+
+  if (user) {
+    return (
+      <div className="h-screen flex flex-col justify-center items-center ">
+        <div className="dark:bg-gray-900 bg-gray-700 p-8 rounded-lg shadow-md w-96 text-center">
+          <h1 className="mb-4 text-xl font-bold text-white dark:text-gray-300">
+            You're already logged in
+          </h1>
+          <button
+            onClick={handleLogout}
+            className="w-full p-3 rounded-md bg-red-500 text-white hover:bg-red-600 focus:outline-none"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
-      {/* Login Card */}
-      <div className="w-11/12 max-w-md p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold mb-6 text-center dark:text-gray-100 text-gray-950">
-          Log in to Your Account
-        </h1>
+    <main className="h-screen flex items-center justify-center p-6">
+      <div className="dark:bg-gray-900 bg-red-300 p-8 rounded-lg shadow-md w-96">
+        <input
+          type="email"
+          name="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+          className="mb-4 w-full p-3 rounded-md border border-gray-700 bg-gray-800 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+        />
+        <input
+          type="password"
+          name="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+          className="mb-4 w-full p-3 rounded-md border border-gray-700 bg-gray-800 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+        />
         <button
-          onClick={handleLogin}
-          className="w-full px-6 py-2 text-white bg-red-950 rounded-md hover:bg-red-800 transition-colors"
+          onClick={handleSignUp}
+          className="w-full mb-2 p-3 rounded-md bg-blue-600 text-white hover:bg-blue-700 focus:outline-none"
         >
-          Login with Auth0
+          Sign Up
+        </button>
+        <button
+          onClick={handleSignIn}
+          className="w-full p-3 rounded-md bg-gray-700 text-white hover:bg-gray-600 focus:outline-none"
+        >
+          Sign In
         </button>
       </div>
     </main>

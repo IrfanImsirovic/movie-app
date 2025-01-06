@@ -1,6 +1,4 @@
 import Image from "next/image";
-import CommentsList from "../../components/CommentsList";
-import CommentForm from "../../components/CommentForm";
 
 async function getMovie(movieId) {
   const res = await fetch(
@@ -50,12 +48,6 @@ export default async function MoviePage({ params }) {
             {movie.vote_average ? movie.vote_average.toFixed(1) : "N/A"}
           </p>
         </div>
-      </div>
-
-      {/* Comments Section */}
-      <div className="max-w-6xl mx-auto p-4">
-        <CommentsList movieId={movieId} />
-        <CommentForm movieId={movieId} />
       </div>
     </div>
   );

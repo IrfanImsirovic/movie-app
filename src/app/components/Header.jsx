@@ -3,11 +3,37 @@
 import Link from "next/link";
 import MenuItem from "./MenuItem";
 import { AiFillHome, AiFillInfoCircle } from "react-icons/ai";
+import { FaUser } from "react-icons/fa";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { useEffect, useState } from "react";
 import DarkModeSwitch from "./DarkModeSwitch";
-import { useUser } from "@auth0/nextjs-auth0/client";
 
 export default function Header() {
-  const { user } = useUser();
+  const supabase = createClientComponentClient();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    async function getSession() {
+      const { data, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error("Error fetching session:", error);
+      } else {
+        setUser(data?.session?.user || null);
+      }
+    }
+
+    const { data: subscription } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user || null); // Update the user state based on session
+      }
+    );
+
+    getSession();
+
+    return () => {
+      subscription?.unsubscribe(); // Cleanup subscription on unmount
+    };
+  }, []);
 
   return (
     <div className="flex justify-between mx-2 max-w-6xl sm:mx-auto items-center py-6">
@@ -15,31 +41,17 @@ export default function Header() {
       <div className="flex">
         <MenuItem title="Home" address="/" Icon={AiFillHome} />
         <MenuItem title="About" address="/about" Icon={AiFillInfoCircle} />
+        <MenuItem
+          title={user ? user.email : "Login"}
+          const
+          address="/login"
+          Icon={FaUser}
+        />
       </div>
 
-      {/* Right section with dark mode switch, login, brand */}
+      {/* Right section with dark mode switch and branding */}
       <div className="flex items-center space-x-5">
         <DarkModeSwitch />
-
-        {/* If user is not logged in, show 'Login' button */}
-        {!user && (
-          <Link
-            href="/api/auth/login"
-            className="bg-blue-600 text-white px-3 py-1 rounded-md"
-          >
-            Login
-          </Link>
-        )}
-
-        {/* If user is logged in, show the user's name or email leading to /profile */}
-        {user && (
-          <Link
-            href="/profile"
-            className="bg-blue-600 text-white px-3 py-1 rounded-md"
-          >
-            {user.name || user.email}
-          </Link>
-        )}
 
         {/* Branding */}
         <Link href="/">
