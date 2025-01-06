@@ -1,4 +1,5 @@
 import Image from "next/image";
+import CommentSection from "../../components/CommentSection"; // Adjust path based on your project structure
 
 async function getMovie(movieId) {
   const res = await fetch(
@@ -8,8 +9,8 @@ async function getMovie(movieId) {
 }
 
 export default async function MoviePage({ params }) {
-  const { id: movieId } = params;
-  const movie = await getMovie(movieId);
+  const movieId = params.id; // Extract movieId from params
+  const movie = await getMovie(movieId); // Fetch movie data on the server
 
   return (
     <div className="w-full">
@@ -49,6 +50,9 @@ export default async function MoviePage({ params }) {
           </p>
         </div>
       </div>
+
+      {/* Add CommentSection */}
+      <CommentSection movieId={movieId} />
     </div>
   );
 }
